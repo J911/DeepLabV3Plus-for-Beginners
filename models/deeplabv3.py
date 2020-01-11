@@ -10,6 +10,7 @@ class ASPP(nn.Module):
         super(ASPP, self).__init__()
         self.pool = nn.AdaptiveAvgPool2d((1,1))
         self.conv1 = nn.Conv2d(in_channel, 256, kernel_size=1, padding=0, dilation=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(256)
         self.conv2 = nn.Conv2d(in_channel, 256, kernel_size=1, padding=0, dilation=1, bias=False)
         self.bn2 = nn.BatchNorm2d(256)
         self.conv3 = nn.Conv2d(in_channel, 256, kernel_size=3, padding=6, dilation=6, bias=False)
@@ -22,17 +23,20 @@ class ASPP(nn.Module):
         self.conv6 = nn.Conv2d(256 * 5, 512, kernel_size=1, padding=0, dilation=1, bias=False)
         self.bn6 = nn.BatchNorm2d(512)
 
+        self.relu = nn.ReLU(inplace=True)
+
     def forward(self, x):
         _, _, h, w = x.size()
 
-        x1 = F.interpolate(self.conv1(self.pool(x)), size=(h, w), mode='bilinear', align_corners=True)
-        x2 = self.bn2(self.conv2(x))
-        x3 = self.bn3(self.conv3(x))
-        x4 = self.bn4(self.conv5(x))
-        x5 = self.bn5(self.conv5(x))
+        x1 = self.relu(self.bn1(self.conv1(self.pool(x))))
+        x1 = F.interpolate(x1, size=(h, w), mode='bilinear', align_corners=True)
+        x2 = self.relu(self.bn2(self.conv2(x)))
+        x3 = self.relu(self.bn3(self.conv3(x)))
+        x4 = self.relu(self.bn4(self.conv5(x)))
+        x5 = self.relu(self.bn5(self.conv5(x)))
 
         x = torch.cat((x1, x2, x3, x4, x5), 1)
-        x = self.bn6(self.conv6(x))
+        x = self.relu(self.bn6(self.conv6(x)))
 
         return x
    
