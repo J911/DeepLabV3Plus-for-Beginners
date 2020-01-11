@@ -26,9 +26,12 @@ class ASPP(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        _, _, h, w = x.size()
+        batch, _, h, w = x.size()
 
-        x1 = self.relu(self.bn1(self.conv1(self.pool(x))))
+        if batch > 1:
+            x1 = self.relu(self.bn1(self.conv1(self.pool(x))))
+        else:
+            x1 = self.relu(self.conv1(self.pool(x)))
         x1 = F.interpolate(x1, size=(h, w), mode='bilinear', align_corners=True)
         x2 = self.relu(self.bn2(self.conv2(x)))
         x3 = self.relu(self.bn3(self.conv3(x)))
