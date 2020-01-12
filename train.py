@@ -68,7 +68,7 @@ def train(epoch, iteration, scheduler):
         loss.backward()
         optimizer.step()
 
-        print("\repoch: ", epoch, "iter: ", iteration, "/", len(train_loader), "loss: ", loss.item(), end='')
+        print("\repoch: ", epoch, "iter: ", (idx + 1), "/", len(train_loader), "loss: ", loss.item(), end='')
         sys.stdout.flush()
 
     scheduler.step()
