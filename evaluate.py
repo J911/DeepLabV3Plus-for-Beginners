@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from data.dataloader import DataSet
-from models.deeplabv3 import DeepLabV3
+from models.deeplabv3plus import DeepLabV3Plus
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 
@@ -26,7 +26,7 @@ test_dataset = DataSet(args.data, train=False, mirror=False)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, num_workers=1, drop_last=False, shuffle=False, pin_memory=True)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-net = DeepLabV3(num_classes=args.num_classes)
+net = DeepLabV3Plus(num_classes=args.num_classes)
 net = net.to(device)
 
 checkpoint = torch.load(args.weight)

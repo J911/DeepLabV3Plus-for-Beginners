@@ -4,7 +4,7 @@ import torch.optim as optim
 from torch.optim import lr_scheduler
 
 from data.dataloader import DataSet
-from models.deeplabv3 import DeepLabV3
+from models.deeplabv3plus import DeepLabV3Plus
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 
@@ -37,7 +37,7 @@ train_dataset = DataSet(args.data)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.worker, drop_last=False, shuffle=True, pin_memory=True)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-net = DeepLabV3(num_classes=args.num_classes)
+net = DeepLabV3Plus(num_classes=args.num_classes)
 net = net.to(device)
 
 if device == 'cuda':

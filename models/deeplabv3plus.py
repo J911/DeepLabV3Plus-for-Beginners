@@ -44,9 +44,9 @@ class ASPP(nn.Module):
         return x
    
 
-class DeepLabV3(nn.Module):
+class DeepLabV3Plus(nn.Module):
     def __init__(self, num_classes=19):
-        super(DeepLabV3, self).__init__()
+        super(DeepLabV3Plus, self).__init__()
         self.resnet = resnet101(pretrained=True)
         self.aspp = ASPP(2048)
         self.conv1 = nn.Conv2d(256, 48, kernel_size=1, padding=0)
@@ -61,12 +61,12 @@ class DeepLabV3(nn.Module):
         x, low_level_feature = self.resnet(x)
         x = self.aspp(x)
 
-        low_level_feature = self.relu(self.bn1(self.conv1(low_level_feature))
-        
+        low_level_feature = self.relu(self.bn1(self.conv1(low_level_feature)))
+
         x = F.interpolate(x, size=low_level_feature.size()[2:], mode='bilinear')
         x = torch.cat((x, low_level_feature), dim=1)
 
-        x = self.relu(self.bn2(self.conv2(x))
+        x = self.relu(self.bn2(self.conv2(x)))
         x = self.conv3(x)
 
         return x
