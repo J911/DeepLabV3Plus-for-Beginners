@@ -194,12 +194,12 @@ class ResNet(nn.Module):
         x = self.relu(x)
         x = self.maxpool(x)
 
-        x = self.layer1(x)
-        x = self.layer2(x)
+        low_level_feature = self.layer1(x)
+        x = self.layer2(low_level_feature)
         x = self.layer3(x)
         x = self.layer4(x)
 
-        return x
+        return x, low_level_feature
 
     def forward(self, x):
         return self._forward_impl(x)

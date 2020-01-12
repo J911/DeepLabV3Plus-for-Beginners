@@ -1,5 +1,5 @@
-# DeepLabV3 for Beginners
-Rethinking Atrous Convolution for Semantic Image Segmentation
+# DeepLabV3Plus for Beginners
+Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation
 
 ## Support & Requirements
 - 🔥pytorch >= 0.4.0
@@ -9,23 +9,23 @@ Rethinking Atrous Convolution for Semantic Image Segmentation
 - multi GPU support!
 
 
-### train
+## Train
 git clone & change DIR
 ```bash
-$ git clone https://github.com/J911/DeepLabV3-for-Beginners
-$ cd DeepLabV3-for-Beginners
+$ git clone https://github.com/J911/DeepLabV3Plus-for-Beginners
+$ cd DeepLabV3Plus-for-Beginners
 ```
 run 🙌🙌
 ```bash
-$ python train.py --data /data/CITYSCAPES --batch-size 4 --epoch 1000 --logdir ./logs/exp1/ --save ./saved_model/exp1/
+$ python train.py --data /data/CITYSCAPES --batch-size 8 --epoch 200 --logdir ./logs/exp1/ --save ./saved_model/exp1/
 ```
 
-### evaluate
+## Evaluate
 ```bash
 $ python evaluate.py --data /data/CITYSCAPES --weight ./saved_model/epoch80.pth --num-classes 19
 ```
 
-### Dataset
+## Dataset
 
 This Repository uses Cityscapes Dataset.
 
@@ -41,7 +41,7 @@ CITYSCAPES
     `-- val
 ```
 
-### Result
+## Result
 TBD
 
 ## Thanks to

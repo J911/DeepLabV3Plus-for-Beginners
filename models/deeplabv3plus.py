@@ -20,8 +20,8 @@ class ASPP(nn.Module):
         self.conv5 = nn.Conv2d(in_channel, 256, kernel_size=3, padding=18, dilation=18, bias=False)
         self.bn5 = nn.BatchNorm2d(256)
 
-        self.conv6 = nn.Conv2d(256 * 5, 512, kernel_size=1, padding=0, dilation=1, bias=False)
-        self.bn6 = nn.BatchNorm2d(512)
+        self.conv6 = nn.Conv2d(256 * 5, 256, kernel_size=1, padding=0, dilation=1, bias=False)
+        self.bn6 = nn.BatchNorm2d(256)
 
         self.relu = nn.ReLU(inplace=True)
 
@@ -49,11 +49,24 @@ class DeepLabV3(nn.Module):
         super(DeepLabV3, self).__init__()
         self.resnet = resnet101(pretrained=True)
         self.aspp = ASPP(2048)
-        self.conv = nn.Conv2d(512, num_classes, kernel_size=1, padding=0)
+        self.conv1 = nn.Conv2d(256, 48, kernel_size=1, padding=0)
+        self.bn1 = nn.BatchNorm2d(48)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = nn.Conv2d(304, 256, kernel_size=1, padding=0)
+        self.bn2 = nn.BatchNorm2d(256)
+        self.conv3 = nn.Conv2d(256, num_classes, kernel_size=1, padding=0)
+
 
     def forward(self, x):
-        x = self.resnet(x)
+        x, low_level_feature = self.resnet(x)
         x = self.aspp(x)
-        x = self.conv(x)
+
+        low_level_feature = self.relu(self.bn1(self.conv1(low_level_feature))
+        
+        x = F.interpolate(x, size=low_level_feature.size()[2:], mode='bilinear')
+        x = torch.cat((x, low_level_feature), dim=1)
+
+        x = self.relu(self.bn2(self.conv2(x))
+        x = self.conv3(x)
 
         return x
