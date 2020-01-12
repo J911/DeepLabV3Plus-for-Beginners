@@ -16,13 +16,13 @@ import argparse
 
 parser = argparse.ArgumentParser(description="DeepLab-ResNet Network")
 parser.add_argument("--data", type=str, default="/data/CITYSCAPES", help="")
-parser.add_argument("--batch-size", type=int, default=4, help="")
+parser.add_argument("--batch-size", type=int, default=8, help="")
 parser.add_argument("--worker", type=int, default=12, help="")
-parser.add_argument("--epoch", type=int, default=80, help="")
+parser.add_argument("--epoch", type=int, default=1000, help="")
 parser.add_argument("--num-classes", type=int, default=19, help="")
 parser.add_argument("--momentum", type=float, default=0.9, help="")
-parser.add_argument("--lr", type=float, default=0.01, help="")
-parser.add_argument("--weight-decay", type=float, default=0.0005, help="")
+parser.add_argument("--lr", type=float, default=1e-2, help="")
+parser.add_argument("--weight-decay", type=float, default=1e-4, help="")
 parser.add_argument("--logdir", type=str, default="./logs/", help="")
 parser.add_argument("--save", type=str, default="./saved_model/", help="")
 
@@ -46,7 +46,7 @@ if device == 'cuda':
 
 criterion = nn.CrossEntropyLoss(ignore_index=255)
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-scheduler = lr_scheduler.CosineAnnealingLR(optimizer, len(train_loader) * args.epoch, eta_min=0)
+scheduler = lr_scheduler.CosineAnnealingLR(optimizer, args.epoch, eta_min=0)
 
 def train(epoch, iteration, scheduler):
     epoch += 1
@@ -67,15 +67,17 @@ def train(epoch, iteration, scheduler):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        scheduler.step()
 
-        writer.add_scalar('log/loss', loss.item(), iteration)
-        writer.add_scalar('log/lr', scheduler.get_lr()[0], iteration)
-
-        print("\repoch: ", epoch, "iter: ", iteration, "loss: ", loss.item(), "lr: ", scheduler.get_lr()[0], end='')
+        print("\repoch: ", epoch, "iter: ", iteration, "/", len(train_loader), "loss: ", loss.item(), end='')
         sys.stdout.flush()
 
+    scheduler.step()
+
+    writer.add_scalar('log/loss', train_loss/(idx+1), epoch)
+    writer.add_scalar('log/lr', scheduler.get_lr()[0], epoch)
+
     print("\nepoch: ", epoch, "loss: ", train_loss/(idx+1), "lr: ", scheduler.get_lr()[0])
+
     state = {
         'net': net.module.state_dict(),
         'epoch': epoch,
@@ -83,7 +85,7 @@ def train(epoch, iteration, scheduler):
     }
     
     if not os.path.isdir(args.save):
-        os.mkdir(args.save)
+        os.makedirs(args.save)
     saving_path = os.path.join(args.save, 'epoch' + str(epoch) + '.pth')
     torch.save(state, saving_path)
 

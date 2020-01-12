@@ -17,7 +17,7 @@ $ cd DeepLabV3-for-Beginners
 ```
 run 🙌🙌
 ```bash
-$ python train.py --data /data/CITYSCAPES --batch-size 4 --lr 0.01 --epoch 80 --logdir ./logs/exp1/ --save ./saved_model/
+$ python train.py --data /data/CITYSCAPES --batch-size 4 --epoch 1000 --logdir ./logs/exp1/ --save ./saved_model/exp1/
 ```
 
 ### evaluate

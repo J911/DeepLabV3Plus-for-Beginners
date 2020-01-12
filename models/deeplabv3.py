@@ -32,7 +32,7 @@ class ASPP(nn.Module):
             x1 = self.relu(self.bn1(self.conv1(self.pool(x))))
         else:
             x1 = self.relu(self.conv1(self.pool(x)))
-        x1 = F.interpolate(x1, size=(h, w), mode='bilinear', align_corners=True)
+        x1 = F.interpolate(x1, size=(h, w), mode='bilinear')
         x2 = self.relu(self.bn2(self.conv2(x)))
         x3 = self.relu(self.bn3(self.conv3(x)))
         x4 = self.relu(self.bn4(self.conv5(x)))
