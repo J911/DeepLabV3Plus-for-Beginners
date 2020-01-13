@@ -22,7 +22,7 @@ print(args)
 
 batch_size = 1
 
-test_dataset = DataSet(args.data, train=False, mirror=False)
+test_dataset = DataSet(args.data, train=False, input_size=(1024, 2048), mirror=False)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, num_workers=1, drop_last=False, shuffle=False, pin_memory=True)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
