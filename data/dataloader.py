@@ -8,11 +8,12 @@ from torch.utils import data
 import glob
 
 class DataSet(data.Dataset):
-    def __init__(self, root, train=True, mean=(128, 128, 128), mirror=True, ignore_label=255):
+    def __init__(self, root, train=True, pyrDown=True, mean=(128, 128, 128), mirror=True, ignore_label=255):
         self.root = root
         self.mean = mean
         self.mirror = mirror
         self.ignore_label = ignore_label
+        self.pyrDown = pyrDown
 
         self.train = train
 
@@ -48,6 +49,10 @@ class DataSet(data.Dataset):
     def __getitem__(self, index):
         image = cv2.imread(self.image_paths[index], cv2.IMREAD_COLOR)
         label = cv2.imread(self.label_paths[index], cv2.IMREAD_GRAYSCALE)
+
+        if self.pyrDown == True:
+            image = cv2.pyrDown(image)
+            label = cv2.pyrDown(label)
 
         image = np.asarray(image, np.float32)
         label = np.asarray(label, np.float32)
