@@ -22,7 +22,7 @@ parser.add_argument("--epoch", type=int, default=200, help="")
 parser.add_argument("--num-classes", type=int, default=19, help="")
 parser.add_argument("--momentum", type=float, default=0.9, help="")
 parser.add_argument("--lr", type=float, default=1e-2, help="")
-parser.add_argument("--weight-decay", type=float, default=1e-4, help="")
+parser.add_argument("--weight-decay", type=float, default=5e-4, help="")
 parser.add_argument("--logdir", type=str, default="./logs/", help="")
 parser.add_argument("--save", type=str, default="./saved_model/", help="")
 
@@ -46,7 +46,7 @@ if device == 'cuda':
 
 criterion = nn.CrossEntropyLoss(ignore_index=255)
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-scheduler = lr_scheduler.CosineAnnealingLR(optimizer, args.epoch, eta_min=0)
+scheduler = lr_scheduler.CosineAnnealingLR(optimizer, args.epoch, eta_min=1e-4)
 
 def train(epoch, iteration, scheduler):
     epoch += 1
