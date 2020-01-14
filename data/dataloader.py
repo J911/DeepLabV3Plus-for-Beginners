@@ -8,12 +8,15 @@ from torch.utils import data
 import glob
 
 class DataSet(data.Dataset):
-    def __init__(self, root, train=True, input_size=(512, 512), mean=(128, 128, 128), mirror=True, ignore_label=255):
+    def __init__(self, root, train=True, input_size=(768, 768), std=[0.485, 0.456, 0.406], mean=[0.229, 0.224, 0.225], mirror=True, ignore_label=255):
         self.root = root
         self.mean = mean
         self.mirror = mirror
         self.ignore_label = ignore_label
         self.input_size = input_size
+
+        self.std = std
+        self.mean = mean
 
         self.train = train
 
@@ -50,10 +53,15 @@ class DataSet(data.Dataset):
         image = cv2.imread(self.image_paths[index], cv2.IMREAD_COLOR)
         label = cv2.imread(self.label_paths[index], cv2.IMREAD_GRAYSCALE)
 
+        image = image / 255.0
+        image = image - np.array(self.std)
+        image = image / np.array(self.mean)
+
         if self.train == True:
-            scale = np.random.uniform(low=0.7, high=2.0)
+            scale = np.random.uniform(low=0.75, high=2.0)
             image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
             label = cv2.resize(label, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
+        
 
         h, w = self.input_size
 
@@ -66,7 +74,6 @@ class DataSet(data.Dataset):
         image = np.asarray(image, np.float32)
         label = np.asarray(label, np.float32)
 
-        image -= self.mean
         label = self.id2trainId(label)
 
         image = image.transpose((2, 0, 1))
