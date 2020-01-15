@@ -52,7 +52,7 @@ class DeepLabV3Plus(nn.Module):
         self.conv1 = nn.Conv2d(256, 48, kernel_size=1, padding=0)
         self.bn1 = nn.BatchNorm2d(48)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = nn.Conv2d(304, 256, kernel_size=1, padding=0)
+        self.conv2 = nn.Conv2d(304, 256, kernel_size=3, padding=1)
         self.bn2 = nn.BatchNorm2d(256)
         self.conv3 = nn.Conv2d(256, num_classes, kernel_size=1, padding=0)
 

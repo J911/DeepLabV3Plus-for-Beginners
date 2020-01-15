@@ -16,9 +16,9 @@ import argparse
 
 parser = argparse.ArgumentParser(description="DeepLabV3Plus Network")
 parser.add_argument("--data", type=str, default="/data/CITYSCAPES", help="")
-parser.add_argument("--batch-size", type=int, default=8, help="")
+parser.add_argument("--batch-size", type=int, default=16, help="")
 parser.add_argument("--worker", type=int, default=12, help="")
-parser.add_argument("--epoch", type=int, default=50, help="")
+parser.add_argument("--epoch", type=int, default=200, help="")
 parser.add_argument("--num-classes", type=int, default=19, help="")
 parser.add_argument("--momentum", type=float, default=0.9, help="")
 parser.add_argument("--lr", type=float, default=1e-2, help="")
