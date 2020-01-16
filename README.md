@@ -47,17 +47,18 @@ CITYSCAPES
 - LR: 1e-2 ~ 1e-4 (CosineAnnealingLR)
 - Weight Decay: 5e-4
 - Epoch: 200
-- Batch Size: 16
+- Batch Size: 16 (8 images per GPU)
+- GPU: 2GPU (Tesla V100 * 2)
 
-- mIoU: TBD
+- mIoU: 0.7521
 
 | Class | IoU | Class | IoU | Class | IoU | Class | IoU |
 |:-----:|:---:|:-----:|:---:|:-----:|:---:|:-----:|:---:|
-| **road** | TBD | **pole** | TBD | **sky** | TBD | **bus** | TBD |
-| **sidewalk** | TBD | **traffic light** | TBD | **person** | TBD | **train** | TBD |
-| **building** | TBD | **traffic sign** | TBD | **rider** | TBD | **motorcycle** | TBD |
-| **wall** | TBD | **vegetation** | TBD | **car** | TBD | **bicycle** | TBD |
-| **fence** | TBD | **terrain** | TBD | **truck** | TBD | - | - |
+| **road** | 0.9823 | **pole** | 0.6408 | **sky** | 0.9455 | **bus** | 0.8117 |
+| **sidewalk** | 0.8528 | **traffic light** | 0.6935 | **person** | 0.8175 | **train** | 0.5439 |
+| **building** | 0.9215 | **traffic sign** | 0.7805 | **rider** | 0.6328 | **motorcycle** | 0.6905 |
+| **wall** | 0.4955 | **vegetation** | 0.9245 | **car** | 0.9445 | **bicycle** | 0.7738 |
+| **fence** | 0.5871 | **terrain** | 0.6148 | **truck** | 0.6354 | - | - |
 
 
 ## Thanks to
