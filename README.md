@@ -52,6 +52,8 @@ CITYSCAPES
 
 - mIoU: 0.7521
 
+![result](./assets/result.png)
+
 | Class | IoU | Class | IoU | Class | IoU | Class | IoU |
 |:-----:|:---:|:-----:|:---:|:-----:|:---:|:-----:|:---:|
 | **road** | 0.9823 | **pole** | 0.6408 | **sky** | 0.9455 | **bus** | 0.8117 |
