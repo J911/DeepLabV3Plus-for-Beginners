@@ -22,6 +22,7 @@ parser.add_argument("--epoch", type=int, default=200, help="")
 parser.add_argument("--num-classes", type=int, default=19, help="")
 parser.add_argument("--momentum", type=float, default=0.9, help="")
 parser.add_argument("--lr", type=float, default=1e-2, help="")
+parser.add_argument("--os", type=int, default=16, help="")
 parser.add_argument("--weight-decay", type=float, default=5e-4, help="")
 parser.add_argument("--logdir", type=str, default="./logs/", help="")
 parser.add_argument("--save", type=str, default="./saved_model/", help="")
@@ -37,7 +38,7 @@ train_dataset = DataSet(args.data)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.worker, drop_last=False, shuffle=True, pin_memory=True)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-net = DeepLabV3Plus(num_classes=args.num_classes)
+net = DeepLabV3Plus(num_classes=args.num_classes, os=args.os)
 net = net.to(device)
 
 if device == 'cuda':

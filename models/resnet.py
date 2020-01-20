@@ -113,7 +113,7 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, zero_init_residual=False,
+    def __init__(self, block, layers, os, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
                  norm_layer=None):
         super(ResNet, self).__init__()
@@ -123,6 +123,9 @@ class ResNet(nn.Module):
 
         self.inplanes = 64
         self.dilation = 1
+        stride_layer3 = 2
+        if os == 8:
+            stride_layer3 = 1
         if replace_stride_with_dilation is None:
             # each element in the tuple indicates if we should replace
             # the 2x2 stride with a dilated convolution instead
@@ -140,7 +143,7 @@ class ResNet(nn.Module):
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
                                        dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=stride_layer3,
                                        dilate=replace_stride_with_dilation[1])
         self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
                                        dilate=replace_stride_with_dilation[2])
@@ -204,8 +207,8 @@ class ResNet(nn.Module):
     def forward(self, x):
         return self._forward_impl(x)
 
-def _resnet(arch, block, layers, pretrained, progress, **kwargs):
-    model = ResNet(block, layers, **kwargs)
+def _resnet(arch, block, layers, os, pretrained, progress, **kwargs):
+    model = ResNet(block, layers, os, **kwargs)
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls[arch],
                                               progress=progress)
@@ -213,8 +216,8 @@ def _resnet(arch, block, layers, pretrained, progress, **kwargs):
     return model
 
 
-def resnet101(pretrained=False, progress=True, **kwargs):
-    net = _resnet('resnet101', Bottleneck, [3, 4, 23, 3], pretrained, progress,
+def resnet101(os=16, pretrained=False, progress=True, **kwargs):
+    net = _resnet('resnet101', Bottleneck, [3, 4, 23, 3], os, pretrained, progress,
                    **kwargs)
     net.fc.requires_grad = False
     return net

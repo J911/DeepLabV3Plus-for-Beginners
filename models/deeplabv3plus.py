@@ -45,9 +45,9 @@ class ASPP(nn.Module):
    
 
 class DeepLabV3Plus(nn.Module):
-    def __init__(self, num_classes=19):
+    def __init__(self, num_classes=19, os=16):
         super(DeepLabV3Plus, self).__init__()
-        self.resnet = resnet101(pretrained=True)
+        self.resnet = resnet101(os=os, pretrained=True)
         self.aspp = ASPP(2048)
         self.conv1 = nn.Conv2d(256, 48, kernel_size=1, padding=0)
         self.bn1 = nn.BatchNorm2d(48)
