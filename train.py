@@ -7,6 +7,8 @@ from data.dataloader import DataSet
 from models.deeplabv3plus import DeepLabV3Plus
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
+import torch.distributed as dist
+import torch.utils.data.distributed
 
 from tensorboardX import SummaryWriter
 
@@ -26,24 +28,49 @@ parser.add_argument("--os", type=int, default=16, help="")
 parser.add_argument("--weight-decay", type=float, default=5e-4, help="")
 parser.add_argument("--logdir", type=str, default="./logs/", help="")
 parser.add_argument("--save", type=str, default="./saved_model/", help="")
+parser.add_argument("--local_rank", default=0, type=int, help="")
 
 args = parser.parse_args()
 
-print(args)
+if args.local_rank == 0:
+    print(args)
+
+torch.cuda.set_device(args.local_rank)
+
+try:
+    world_size = int(os.environ['WORLD_SIZE'])
+    distributed = world_size > 1
+except:
+    distributed = False
+    world_size = 1
+
+if distributed:
+    dist.init_process_group(backend='nccl', init_method='env://')
+
+rank = 0 if not distributed else dist.get_rank()
 
 writer = SummaryWriter(args.logdir)
 
 train_dataset = DataSet(args.data)
 
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, num_workers=args.worker, drop_last=False, shuffle=True, pin_memory=True)
-
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 net = DeepLabV3Plus(num_classes=args.num_classes, os=args.os)
 net = net.to(device)
 
-if device == 'cuda':
-    net = torch.nn.DataParallel(net)
-    cudnn.benchmark = True
+if distributed:
+    net = torch.nn.parallel.DistributedDataParallel(net, device_ids=[args.local_rank],
+                                                        find_unused_parameters=True,
+                                                        output_device=args.local_rank)
+
+cudnn.benchmark = True
+
+if distributed:
+    train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+else:
+    train_sampler = None
+
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size//world_size, shuffle=(train_sampler is None), num_workers=args.worker, pin_memory=True, sampler=train_sampler)
+
 
 criterion = nn.CrossEntropyLoss(ignore_index=255)
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
@@ -69,7 +96,7 @@ def train(epoch, iteration, scheduler):
         loss.backward()
         optimizer.step()
 
-        print("\repoch: ", epoch, "iter: ", (idx + 1), "/", len(train_loader), "loss: ", loss.item(), end='')
+        print("\repoch: ", epoch, "iter: ", (idx + 1), "/", len(train_loader), "loss: ", loss.item(), end='\r')
         sys.stdout.flush()
 
     scheduler.step()
@@ -97,4 +124,7 @@ if __name__=='__main__':
     iteration = 0
 
     while epoch < args.epoch:
+        if distributed:
+            train_sampler.set_epoch(epoch)
+            
         epoch, iteration = train(epoch, iteration, scheduler)

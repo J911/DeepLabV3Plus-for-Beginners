@@ -4,26 +4,27 @@ import torch
 import numpy as np
 
 from models.resnet import resnet101
+from inplace_abn import InPlaceABNSync
 
 class ASPP(nn.Module):
     def __init__(self, in_channel):
         super(ASPP, self).__init__()
         self.pool = nn.AdaptiveAvgPool2d((1,1))
         self.conv1 = nn.Conv2d(in_channel, 256, kernel_size=1, padding=0, dilation=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(256)
+        self.bn1 = InPlaceABNSync(256)
         self.conv2 = nn.Conv2d(in_channel, 256, kernel_size=1, padding=0, dilation=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(256)
+        self.bn2 = InPlaceABNSync(256)
         self.conv3 = nn.Conv2d(in_channel, 256, kernel_size=3, padding=6, dilation=6, bias=False)
-        self.bn3 = nn.BatchNorm2d(256)
+        self.bn3 = InPlaceABNSync(256)
         self.conv4 = nn.Conv2d(in_channel, 256, kernel_size=3, padding=12, dilation=12, bias=False)
-        self.bn4 = nn.BatchNorm2d(256)
+        self.bn4 = InPlaceABNSync(256)
         self.conv5 = nn.Conv2d(in_channel, 256, kernel_size=3, padding=18, dilation=18, bias=False)
-        self.bn5 = nn.BatchNorm2d(256)
+        self.bn5 = InPlaceABNSync(256)
 
         self.conv6 = nn.Conv2d(256 * 5, 256, kernel_size=1, padding=0, dilation=1, bias=False)
-        self.bn6 = nn.BatchNorm2d(256)
+        self.bn6 = InPlaceABNSync(256)
 
-        self.relu = nn.ReLU(inplace=True)
+        self.relu = nn.ReLU(inplace=False)
 
     def forward(self, x):
         batch, _, h, w = x.size()
@@ -50,10 +51,10 @@ class DeepLabV3Plus(nn.Module):
         self.resnet = resnet101(os=os, pretrained=True)
         self.aspp = ASPP(2048)
         self.conv1 = nn.Conv2d(256, 48, kernel_size=1, padding=0)
-        self.bn1 = nn.BatchNorm2d(48)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn1 = InPlaceABNSync(48)
+        self.relu = nn.ReLU(inplace=False)
         self.conv2 = nn.Conv2d(304, 256, kernel_size=3, padding=1)
-        self.bn2 = nn.BatchNorm2d(256)
+        self.bn2 = InPlaceABNSync(256)
         self.conv3 = nn.Conv2d(256, num_classes, kernel_size=1, padding=0)
 
 
