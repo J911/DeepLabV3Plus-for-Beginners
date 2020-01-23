@@ -2,10 +2,15 @@
 Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation
 
 ## Support & Requirements
-- 🔥pytorch >= 1.1.0
-- 🐍python 3.6.5 
-- 📈tensorboardX
+- pytorch >= 1.1.0
+- tensorboardX
 - CUDA >= 10.0
+- SyncBN support(inplace_abn)
+
+## Install Inplace_abn
+```bash
+$ pip install git+https://github.com/mapillary/inplace_abn.git@v1.0.10
+```
 
 ## Train
 git clone & change DIR
