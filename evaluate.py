@@ -15,6 +15,7 @@ parser = argparse.ArgumentParser(description="DeepLab-ResNet Network")
 parser.add_argument("--data", type=str, default="/data/CITYSCAPES", help="")
 parser.add_argument("--weight", type=str, default="./saved_model/epoch80.pth", help="")
 parser.add_argument("--num-classes", type=int, default=19, help="")
+parser.add_argument("--os", type=int, default=16, help="")
 
 args = parser.parse_args()
 
@@ -26,7 +27,7 @@ test_dataset = DataSet(args.data, train=False, input_size=(1024, 2048), mirror=F
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, num_workers=1, drop_last=False, shuffle=False, pin_memory=True)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-net = DeepLabV3Plus(num_classes=args.num_classes)
+net = DeepLabV3Plus(num_classes=args.num_classes, os=args.os)
 net = net.to(device)
 
 checkpoint = torch.load(args.weight)
