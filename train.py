@@ -108,7 +108,7 @@ def train(epoch, iteration, scheduler):
 
     if rank == 0:
         state = {
-            'net': net.module.state_dict(),
+            'net': net.state_dict(),
             'epoch': epoch,
             'iter': iteration,
         }
