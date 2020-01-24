@@ -21,6 +21,8 @@ args = parser.parse_args()
 
 print(args)
 
+torch.cuda.set_device(0)
+
 batch_size = 1
 
 test_dataset = DataSet(args.data, train=False, input_size=(1024, 2048), mirror=False)
@@ -30,12 +32,12 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 net = DeepLabV3Plus(num_classes=args.num_classes, os=args.os)
 net = net.to(device)
 
-checkpoint = torch.load(args.weight)
-net.load_state_dict(checkpoint['net'])
-
 if device == 'cuda':
     net = torch.nn.DataParallel(net)
     cudnn.benchmark = True
+    
+checkpoint = torch.load(args.weight)
+net.load_state_dict(checkpoint['net'])
 
 def get_confusion_matrix(gt_label, pred_label, class_num):
     index = (gt_label * class_num + pred_label).astype('int32')
