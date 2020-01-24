@@ -78,17 +78,18 @@ def train(epoch, iteration, scheduler):
     writer.add_scalar('log/lr', scheduler.get_lr()[0], epoch)
 
     print("\nepoch: ", epoch, "loss: ", train_loss/(idx+1), "lr: ", scheduler.get_lr()[0])
-
-    state = {
-        'net': net.module.state_dict(),
-        'epoch': epoch,
-        'iter': iteration,
-    }
     
-    if not os.path.isdir(args.save):
-        os.makedirs(args.save)
-    saving_path = os.path.join(args.save, 'epoch' + str(epoch) + '.pth')
-    torch.save(state, saving_path)
+    if rank == 0:
+        state = {
+            'net': net.module.state_dict(),
+            'epoch': epoch,
+            'iter': iteration,
+        }
+
+        if not os.path.isdir(args.save):
+            os.makedirs(args.save)
+        saving_path = os.path.join(args.save, 'epoch' + str(epoch) + '.pth')
+        torch.save(state, saving_path)
 
     return epoch, iteration
 
