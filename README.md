@@ -25,7 +25,7 @@ $ python -m torch.distributed.launch --nproc_per_node ${num of GPUs} train.py --
 
 ## Evaluate
 ```bash
-$ python evaluate.py --data /data/CITYSCAPES --weight ./saved_model/exp1/epoch200.pth --num-classes 19
+$ python -m torch.distributed.launch --nproc_per_node 1 evaluate.py --data /data/CITYSCAPES --weight ./saved_model/exp1/epoch200.pth --num-classes 19
 ```
 
 ## Dataset

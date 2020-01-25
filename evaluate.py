@@ -5,6 +5,7 @@ from data.dataloader import DataSet
 from models.deeplabv3plus import DeepLabV3Plus
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
+import torch.distributed as dist
 
 import numpy as np
 import os
@@ -16,12 +17,15 @@ parser.add_argument("--data", type=str, default="/data/CITYSCAPES", help="")
 parser.add_argument("--weight", type=str, default="./saved_model/epoch80.pth", help="")
 parser.add_argument("--num-classes", type=int, default=19, help="")
 parser.add_argument("--os", type=int, default=16, help="")
+parser.add_argument("--local_rank", default=0, type=int, help="")
 
 args = parser.parse_args()
 
-print(args)
+if args.local_rank == 0:
+    print(args)
 
-torch.cuda.set_device(0)
+torch.cuda.set_device(args.local_rank)
+dist.init_process_group(backend='nccl', init_method='env://')
 
 batch_size = 1
 
@@ -32,9 +36,8 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 net = DeepLabV3Plus(num_classes=args.num_classes, os=args.os)
 net = net.to(device)
 
-if device == 'cuda':
-    net = torch.nn.DataParallel(net)
-    cudnn.benchmark = True
+net = torch.nn.DataParallel(net)
+cudnn.benchmark = True
     
 checkpoint = torch.load(args.weight)
 net.load_state_dict(checkpoint['net'])
