@@ -5,6 +5,7 @@ from data.dataloader import DataSet
 from models.deeplabv3plus import DeepLabV3Plus
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
+import torch.distributed as dist
 
 import numpy as np
 import os
@@ -15,10 +16,16 @@ parser = argparse.ArgumentParser(description="DeepLab-ResNet Network")
 parser.add_argument("--data", type=str, default="/data/CITYSCAPES", help="")
 parser.add_argument("--weight", type=str, default="./saved_model/epoch80.pth", help="")
 parser.add_argument("--num-classes", type=int, default=19, help="")
+parser.add_argument("--os", type=int, default=16, help="")
+parser.add_argument("--local_rank", default=0, type=int, help="")
 
 args = parser.parse_args()
 
-print(args)
+if args.local_rank == 0:
+    print(args)
+
+torch.cuda.set_device(args.local_rank)
+dist.init_process_group(backend='nccl', init_method='env://')
 
 batch_size = 1
 
@@ -26,15 +33,14 @@ test_dataset = DataSet(args.data, train=False, input_size=(1024, 2048), mirror=F
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, num_workers=1, drop_last=False, shuffle=False, pin_memory=True)
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-net = DeepLabV3Plus(num_classes=args.num_classes)
+net = DeepLabV3Plus(num_classes=args.num_classes, os=args.os)
 net = net.to(device)
 
+net = torch.nn.DataParallel(net)
+cudnn.benchmark = True
+    
 checkpoint = torch.load(args.weight)
 net.load_state_dict(checkpoint['net'])
-
-if device == 'cuda':
-    net = torch.nn.DataParallel(net)
-    cudnn.benchmark = True
 
 def get_confusion_matrix(gt_label, pred_label, class_num):
     index = (gt_label * class_num + pred_label).astype('int32')
