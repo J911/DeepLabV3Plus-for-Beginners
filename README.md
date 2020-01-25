@@ -1,6 +1,8 @@
 # DeepLabV3Plus for Beginners
 Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation
 
+> simple version(w/o inplace_abn) is [here](https://github.com/J911/DeepLabV3Plus-for-Beginners/tree/without_inplace_abn)
+
 ## Support & Requirements
 - pytorch >= 1.1.0
 - tensorboardX
