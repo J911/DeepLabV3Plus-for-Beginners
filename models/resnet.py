@@ -130,7 +130,7 @@ class ResNet(nn.Module):
         if replace_stride_with_dilation is None:
             # each element in the tuple indicates if we should replace
             # the 2x2 stride with a dilated convolution instead
-            replace_stride_with_dilation = [False, False, True]
+            replace_stride_with_dilation = [1, 2, 4]
         if len(replace_stride_with_dilation) != 3:
             raise ValueError("replace_stride_with_dilation should be None "
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
@@ -143,11 +143,11 @@ class ResNet(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
-                                       dilate=replace_stride_with_dilation[0])
+                                       dilation=replace_stride_with_dilation[0])
         self.layer3 = self._make_layer(block, 256, layers[2], stride=stride_layer3,
-                                       dilate=replace_stride_with_dilation[1])
+                                       dilation=replace_stride_with_dilation[1])
         self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
-                                       dilate=replace_stride_with_dilation[2])
+                                       dilation=replace_stride_with_dilation[2])
         self.fc = nn.Linear(512 * block.expansion, 1000) # ignore
 
         for m in self.modules():
@@ -167,12 +167,12 @@ class ResNet(nn.Module):
                 elif isinstance(m, BasicBlock):
                     nn.init.constant_(m.bn2.weight, 0)
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilate=False):
+    def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
         norm_layer = self._norm_layer
         downsample = None
         previous_dilation = self.dilation
-        if dilate:
-            self.dilation = 2 
+        if dilation != 1:
+            self.dilation = dilation
 
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
