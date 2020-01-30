@@ -25,6 +25,7 @@ class ASPP(nn.Module):
         self.bn6 = InPlaceABNSync(256)
 
         self.relu = nn.ReLU(inplace=False)
+        self.drop = nn.Dropout2d(0.5)
 
     def forward(self, x):
         batch, _, h, w = x.size()
@@ -40,7 +41,7 @@ class ASPP(nn.Module):
         x5 = self.relu(self.bn5(self.conv5(x)))
 
         x = torch.cat((x1, x2, x3, x4, x5), 1)
-        x = self.relu(self.bn6(self.conv6(x)))
+        x = self.drop(self.relu(self.bn6(self.conv6(x))))
 
         return x
    
